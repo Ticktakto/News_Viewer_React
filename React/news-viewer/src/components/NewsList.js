@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import NewsItem from './NewsItem';
 import axios from 'axios';
+import usePromise from '../lib/usePromise';
 
 const NewsListBlock = styled.div`
     box-sizing: border-box;
@@ -17,44 +18,27 @@ const NewsListBlock = styled.div`
 `;
 
 const NewsList = ({ category }) => {
-    // set var using useState
-    const [articles, setArticles] = useState(null);
-    const [loading, setLoading] = useState(false);
-
-    // implement calling api using useEffect
-    useEffect(() => {
-        //async 사용하는 함수 내부 선언
-        const fetchData = async () => {
-            // loading 중
-            setLoading(true);
-            try {
-                const query = category === 'all' ? '' : `&category=${category}`; 
-                const response = await axios.get(
-                    `https://newsapi.org/v2/top-headlines?country=kr${query}&apiKey=3134238559804252a5bf43a248e0af09`,
-                );
-                setArticles(response.data.articles);
-            }
-            catch (e) {
-                console.log(e);
-            }
-            // loading 완료
-            setLoading(false);
-        };
-
-        // 실행
-        fetchData();
+    const [loading, response, error] = usePromise(() => {
+        const query = category === 'all' ? '' : `&category=${category}`; 
+        return axios.get(
+            `https://newsapi.org/v2/top-headlines?country=kr${query}&apiKey=3134238559804252a5bf43a248e0af09`,
+            );       
     }, [category]);
-
 
     // loading 중(대기)
     if (loading) {
         return <NewsListBlock>대기 중...</NewsListBlock>
     }
     // articles 값이 아직 설정되지 않았을 경우
-    if (!articles) {
+    if (!response) {
         return null;
     }
-    // articles 값이 유효한 경우
+    // error
+    if (error) {
+        return <NewsListBlock>에러 발생!</NewsListBlock>
+    }
+    // response 값이 유효한 경우
+    const { articles } = response.data;
     return(
         <NewsListBlock>
             {articles.map(article => (

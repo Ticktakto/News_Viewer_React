@@ -1,5 +1,5 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { NavLink } from 'react-router-dom';
 
 // category
@@ -70,7 +70,7 @@ const Category = styled(NavLink)`
 `;
 
 // component
-const Categories = ({onSelect, category }) => {
+const Categories = () => {
     return(
         <CategoriesBlock>
             {categories.map(c => (
